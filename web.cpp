@@ -2,7 +2,7 @@
 #include <string.h>
 #include <espressif/esp_common.h>
 
-#define HTTP_PORT 1880
+#include "config.h"
 
 void post(char * code) {
     struct netconn *nc = netconn_new(NETCONN_TCP);
@@ -21,8 +21,7 @@ void post(char * code) {
     }
 
     ip_addr_t ip;
-    IP4_ADDR(&ip, 192, 168, 0, 116);
-    // IP4_ADDR(&ip, 192, 168, 0, 179);
+    HTTP_IP(&ip);
     err = netconn_connect ( nc, &ip, HTTP_PORT );
     if (err == ERR_OK) {
         printf("Connection succeed\n");
@@ -30,16 +29,6 @@ void post(char * code) {
         netconn_delete (nc);
         printf("Connection error\n");
     }
-
-    // const char *data =
-    //         // "GET /rf?code=12345 HTTP/1.1\r\n"
-    //         "POST /rf HTTP/1.1\r\n"
-    //         "User-Agent: esp-open-rtos/0.1 esp8266\r\n"
-    //         "Content-Type: text/plain\r\n"
-    //         "Content-Length: 11\r\n"
-    //         "Connection: close\r\n"
-    //         "\r\n"
-    //         "code=abc123";
 
     char data[512];
     sprintf(data,

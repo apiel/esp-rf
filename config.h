@@ -4,6 +4,9 @@
 
 #define DEVICE_ID "MHB_RF_"
 
+#define HTTP_PORT 1880
+#define HTTP_IP(addr)   IP4_ADDR((addr), 192,168,0,116)
+
 #define PIN_LED 2
 #define PIN_RF433_RECEIVER 14 // D5
 
