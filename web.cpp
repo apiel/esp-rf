@@ -18,16 +18,16 @@ void post(char * code) {
     if (err != ERR_OK) {
         netconn_delete (nc);
         printf("Connection error\n");
+        return;
     }
 
     ip_addr_t ip;
     HTTP_IP(&ip);
     err = netconn_connect ( nc, &ip, HTTP_PORT );
-    if (err == ERR_OK) {
-        printf("Connection succeed\n");
-    } else {
+    if (err != ERR_OK) {
         netconn_delete (nc);
         printf("Connection error\n");
+        return;
     }
 
     char data[512];
@@ -40,7 +40,10 @@ void post(char * code) {
             "\r\n"
             "%s", strlen(code), code);
 
-    netconn_write(nc, data, strlen(data), NETCONN_COPY);
+    err = netconn_write(nc, data, strlen(data), NETCONN_COPY);
+    if (err != ERR_OK) {
+        printf("Connection writing\n");
+    }
 
     netconn_close(nc);
     netconn_delete(nc);
