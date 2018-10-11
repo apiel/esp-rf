@@ -41,8 +41,8 @@ void Rf::consumer(char * result) {
         IP4_ADDR(&ip, 192, 168, 0, 178);
         post((char *)"{\"on\": true}", ip, 80, "POST", "/api/S6QJ3NqpQzsR6ZFzOBgxSRJPW58C061um8oP8uhf/lights/state");
     } else {
-        HTTP_IP(&ip);
-        post(result, ip, HTTP_PORT, "POST", "/rf");
+        // HTTP_IP(&ip);
+        // post(result, ip, HTTP_PORT, "POST", "/rf");
     }
 }
 
