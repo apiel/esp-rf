@@ -4,7 +4,7 @@
 
 #include "config.h"
 
-void post(char * code) {
+void post(char * payload, ip_addr_t ip, int port, const char * method, const char * path) {
     struct netconn *nc = netconn_new(NETCONN_TCP);
     err_t err;
     if (nc == NULL) {
@@ -21,9 +21,10 @@ void post(char * code) {
         return;
     }
 
-    ip_addr_t ip;
-    HTTP_IP(&ip);
-    err = netconn_connect ( nc, &ip, HTTP_PORT );
+    // ip_addr_t ip;
+    // HTTP_IP(&ip);
+    // int port = HTTP_PORT;
+    err = netconn_connect ( nc, &ip, port);
     if (err != ERR_OK) {
         netconn_delete (nc);
         printf("Connection error\n");
@@ -32,13 +33,14 @@ void post(char * code) {
 
     char data[512];
     sprintf(data,
-            "POST /rf HTTP/1.1\r\n"
+            "%s %s HTTP/1.1\r\n"
+            // "POST /rf HTTP/1.1\r\n"
             "User-Agent: esp-open-rtos/0.1 esp8266\r\n"
             "Content-Type: text/plain\r\n"
             "Content-Length: %d\r\n"
             "Connection: close\r\n"
             "\r\n"
-            "%s", strlen(code), code);
+            "%s", method, path, strlen(payload), payload);
 
     err = netconn_write(nc, data, strlen(data), NETCONN_COPY);
     if (err != ERR_OK) {
