@@ -26,21 +26,11 @@ void rf_task(void *pvParameters)
 
 void Rf::onReceived(char * result) {
     printf("Result::: %s\n", result);
-    if (strcmp(result, "cD;]d<]DEc<E=EEEE=[:[-1") == 0) {
-        // printf("button 3 up\n");
-        // ip_addr_t ip;
-        // IP4_ADDR(&ip, 192, 168, 0, 122);
-        // post((char *)"{\"on\": true}", ip, 8080, "POST", "/api/S6QJ3NqpQzsR6ZFzOBgxSRJPW58C061um8oP8uhf/lights/0xd0cf5efffe6f87e4/state");
+    if (strcmp(result, "cD;]d<]DEc<E=EEEE=[:[-1") == 0 || strcmp(result, "cD;]d<]DEc<E=EEE=E;=]-1") == 0 ) {
         if (rf_queue && xQueueSend(rf_queue, result, 0) == pdFALSE) {
             printf("Rf queue overflow (no more place in queue).\r\n");
         }
     }
-    // if (strcmp(result, "ZZVUVIZV-0") == 0) { // LIMIT what goes in the queue
-    //     printf("Result::: %s\n", result);
-    //     if (rf_queue && xQueueSend(rf_queue, result, 0) == pdFALSE) {
-    //         printf("Rf queue overflow (no more place in queue).\r\n");
-    //     }
-    // }
 }
 
 void Rf::consumer(char * result) {
@@ -49,10 +39,13 @@ void Rf::consumer(char * result) {
 // need to move this in another file
     ip_addr_t ip;
     if (strcmp(result, "cD;]d<]DEc<E=EEEE=[:[-1") == 0) {
-        printf("send\n");
-        // need a timer to dont send the request multiple time
-        IP4_ADDR(&ip, 192, 168, 0, 122);
-        post((char *)"{\"on\": true}", ip, 8080, "POST", "/api/S6QJ3NqpQzsR6ZFzOBgxSRJPW58C061um8oP8uhf/lights/0xd0cf5efffe6f87e4/state");
+        printf("send 1\n");
+        IP4_ADDR(&ip, 192, 168, 0, 66);
+        post((char *)"<SetBinaryState><BinaryState>1</BinaryState>", ip, 80, "POST", "/upnp/control/basicevent1");
+    } else if (strcmp(result, "cD;]d<]DEc<E=EEE=E;=]-1") == 0) {
+        printf("send 0\n");
+        IP4_ADDR(&ip, 192, 168, 0, 66);
+        post((char *)"<SetBinaryState><BinaryState>0</BinaryState>", ip, 80, "POST", "/upnp/control/basicevent1");
     } else {
         // HTTP_IP(&ip);
         // post(result, ip, HTTP_PORT, "POST", "/rf");
@@ -66,7 +59,7 @@ void Rf::init()
 // IP4_ADDR(&ip, 192, 168, 0, 67);
 // post((char *)"{\"on\": true}", ip, 80, "POST", "/api/S6QJ3NqpQzsR6ZFzOBgxSRJPW58C061um8oP8uhf/lights/state");
 
-    rf_queue = xQueueCreate(20, RF_CODE_SIZE);
+    rf_queue = xQueueCreate(1, RF_CODE_SIZE); // with 2, we could take only if 2 time following the code
     printf("Start rf receiver\n");
     rfReceiver.start(PIN_RF433_RECEIVER, [](char * result){
         rf.onReceived(result);
